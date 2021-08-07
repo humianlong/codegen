@@ -1,0 +1,65 @@
+<html>
+<style>
+    .aParent div {
+        clear: none;
+        margin-left: 20px;
+    }
+</style>
+<body style="text-align:center">
+<div class="aParent">
+    <div>
+        <span>driver:</span>
+        <input id="driver" type="text" value="com.mysql.jdbc.Driver"/>
+    </div>
+    <div>
+        <span>url:</span>
+        <input id="url" type="text"/>
+    </div>
+    <div>
+        <span>username:</span>
+        <input id="username" type="text"/>
+    </div>
+    <div>
+        <span>password:</span>
+        <input id="password" type="text"/>
+    </div>
+    <div>
+        <input id="submit" type="button" value="gen"/>
+    </div>
+</div>
+</body>
+</html>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script type="application/javascript">
+    $("#submit").click(function () {
+        var driver = $("#driver").val();
+        var url = $("#url").val();
+        var username = $("#username").val();
+        var password = $("#password").val();
+        $.ajax({
+            type: "GET",
+            url: "http://" + window.location.host + "/selector/addConnet?driver=" + driver + "&url=" + url + "&username=" + username + "&password=" + encode(password),
+            success: function (data) {
+                //alert(data);
+                if (data != null && data != '') {
+                    setCookie("token", data, 0.5);
+                    location.href="/pages/index.html";
+                } else {
+                    alert("connect fail");
+                }
+            }
+        });
+    });
+    function setCookie(cname,cvalue,exdays)
+    {
+        var d = new Date();
+        d.setTime(d.getTime()+(exdays*24*60*60*1000));
+        var expires = "expires="+d.toGMTString();
+        document.cookie = cname + "=" + cvalue + "; " + expires;
+    }
+    function encode(str) {
+        str=str.replace(/\%/g,'%25').replace(/\#/g,'%23').replace(/\+/g,'%2B').replace(/\"/g,'%22').replace(/\'/g, '%27').replace(/\//g,'%2F').replace(' ','+').replace(/\?/g,'%3F').replace(/\&/g,'%26').replace(/\=/g,'%3D');
+        return str
+
+    }
+</script>

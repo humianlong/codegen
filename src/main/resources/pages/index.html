@@ -1,0 +1,108 @@
+<html>
+<style>
+    .aParent div {
+        float: left;
+        clear: none;
+        margin-left:20px;
+    }
+</style>
+<body>
+<div class="aParent">
+    <div>
+        <span>database:</span>
+        <select id="selectID">
+        </select>
+    </div>
+    <div>
+        <span>table:</span>
+        <select id="selectID2">
+        </select>
+    </div>
+    <div>
+        <span>package:</span>
+        <span style="color: red">com.sendinfo.dataplus.</span>
+        <input id="packageName" type="text"/>
+    </div>
+    <div>
+        <span>generate</span>
+        <input id="gen" type="submit"/>
+    </div>
+</div>
+</body>
+</html>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script type="application/javascript">
+    var token = getCookie("token");
+    function getCookie(cname)
+    {
+        var name = cname + "=";
+        var ca = document.cookie.split(';');
+        for(var i=0; i<ca.length; i++)
+        {
+            var c = ca[i].trim();
+            if (c.indexOf(name)==0) return c.substring(name.length,c.length);
+        }
+        return "";
+    }
+    $(function () {
+        $.ajax({
+            type: "GET",
+            url: "http://" + window.location.host + "/codeGen/getCatalogs?token="+token,
+            success: function (data) {
+                var list = data.split(",");
+                for (var i = 0; i < list.length; i++) {
+                    $("#selectID").append("<option value='" + list[i] + "'>" + list[i] + "</option>");
+                }
+                SelectChange();
+            }
+        });
+        $("#selectID").change(function () {
+            SelectChange();
+        });
+        $("#selectID2").change(function () {
+            SelectChange2();
+        });
+    });
+
+    function SelectChange() {
+        $("#packageName").val("");
+        //获取下拉框选中项的value属性值
+        var selectValue = $("#selectID").val();
+        $.ajax({
+            type: "GET",
+            url: "http://" + window.location.host + "/codeGen/getTables?database=" + selectValue+"&token="+token,
+            success: function (data) {
+                $("#selectID2").html("");
+                var list = data.split(",");
+                for (var i = 0; i < list.length; i++) {
+                    $("#selectID2").append("<option value='" + list[i] + "'>" + list[i] + "</option>");
+                }
+            }
+        });
+    }
+
+    function SelectChange2() {
+        $("#packageName").val("");
+    }
+
+    $("#gen").click(function () {
+        var database = $("#selectID").val();
+        var table = $("#selectID2").val();
+        var pack = $("#packageName").val();
+        if (!pack || pack == '') {
+            alert("packageName is null");
+            return false;
+        }
+        $.ajax({
+            type: "GET",
+            url: "http://" + window.location.host + "/codeGen/generate?databaseName=" + database + "&table=" + table + "&packageName=" + pack+"&token="+token,
+            success: function (data) {
+                if (data == "success") {
+                    window.open("http://" + window.location.host + "/codeGen/download", "_blank");
+                } else {
+                    location.href = "/pages/login.html";
+                }
+            }
+        });
+    });
+</script>
